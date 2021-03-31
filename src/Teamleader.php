@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Justijndepover\Teamleader\Exceptions\ApiException;
 use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessTokenException;
 use Justijndepover\Teamleader\Exceptions\NoAccessToScopeException;
 
@@ -194,7 +195,7 @@ class Teamleader
         } catch (ClientException $e) {
             $this->parseExceptionForErrorMessages($e);
         } catch (Exception $e) {
-            throw new Exception();
+            throw new Exception($e);
         }
     }
 
@@ -255,6 +256,8 @@ class Teamleader
         if ($response->errors[0]->status == 403) {
             throw NoAccessToScopeException::make($response->errors[0]->status, $response->errors[0]->title);
         }
+
+        throw ApiException::make($response->errors[0]->status, $response->errors[0]->title);
     }
 
     private function tokenHasExpired(): bool
