@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 use Justijndepover\Teamleader\Exceptions\ApiException;
 use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessTokenException;
 use Justijndepover\Teamleader\Exceptions\NoAccessToScopeException;
+use Justijndepover\Teamleader\Exceptions\UnauthorizedException;
 use Justijndepover\Teamleader\Exceptions\UnknownResourceException;
 
 class Teamleader
@@ -253,6 +254,10 @@ class Teamleader
     private function parseExceptionForErrorMessages(ClientException $e): void
     {
         $response = json_decode($e->getResponse()->getBody()->getContents());
+
+        if ($response->errors[0]->status == 401) {
+            throw UnauthorizedException::make($response->errors[0]->status, $response->errors[0]->title);
+        }
 
         if ($response->errors[0]->status == 403) {
             throw NoAccessToScopeException::make($response->errors[0]->status, $response->errors[0]->title);
