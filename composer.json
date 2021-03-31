@@ -1,0 +1,35 @@
+{
+    "name": "justijndepover/teamleader-api",
+    "description": "PHP Client for the Teamleader API",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Justijn Depover",
+            "email": "justijndepover@gmail.com"
+        }
+    ],
+    "keywords": [
+        "php",
+        "teamleader",
+        "api"
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.3"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.4",
+        "justijndepover/php-check": "^0.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Justijndepover\\Teamleader\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Justijndepover\\Teamleader\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
