@@ -198,7 +198,7 @@ class Teamleader
         } catch (ClientException $e) {
             $this->parseExceptionForErrorMessages($e);
         } catch (Exception $e) {
-            throw new Exception($e);
+            throw ApiException::make($e->getCode(), $e->getMessage());
         }
     }
 
