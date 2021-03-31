@@ -57,9 +57,6 @@ $teamleader->setAccessToken($accessToken);
 $teamleader->setRefreshToken($refreshToken);
 $teamleader->setTokenExpiresAt($expiresAt);
 
-// the connect function will fetch a new access token if neccessary.
-$teamleader->connect();
-
 // fetch data:
 $teamleader->crm->get();
 
@@ -67,6 +64,21 @@ $teamleader->crm->get();
 $accessToken = $teamleader->getAccessToken();
 $refreshToken = $teamleader->getRefreshToken();
 $expiresAt = $teamleader->getTokenExpiresAt();
+```
+
+## Available methods
+
+Note that your application should have the correct scopes enabled inside the [integration](https://marketplace.teamleader.eu/be/nl/ontwikkel/integraties)
+
+This application is in an early development stage. Therefore not all resources are available as props yet. (for example: `$teamleader->users->me`)
+In the meantime it's possible to fetch every resource available through the `get` and `post` methods:
+```php
+$teamleader->get('users.me');
+$teamleader->get('departments.list');
+$teamleader->get('departments.info', ['id' => $id]);
+$teamleader->post('contacts.add', [
+    // all the data
+]);
 ```
 
 ## Security
