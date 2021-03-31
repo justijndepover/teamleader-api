@@ -20,7 +20,54 @@ composer require justijndepover/teamleader-api
 
 ## Usage
 
-Todo
+Connecting to Teamleader:
+```php
+// note the state param: this can be a random string. It's used as an extra layer of protection. Teamleader will return this value when connecting.
+$teamleader = new Teamleader(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, STATE);
+// open the teamleader login
+header("Location: {$teamleader->redirectForAuthorizationUrl()}");
+exit;
+```
+
+After connecting, Teamleader will send a request back to your redirect uri.
+```php
+$teamleader = new Teamleader(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, STATE);
+
+if ($_GET['error']) {
+    // your application should handle this error
+}
+
+if ($_GET['state'] != $teamleader->getState()) {
+    // state value does not match, your application should handle this error
+}
+
+$teamleader->setAuthorizationCode($_GET['code']);
+$teamleader->connect();
+
+// store these values:
+$accessToken = $teamleader->getAccessToken();
+$refreshToken = $teamleader->getRefreshToken();
+$expiresAt = $teamleader->getTokenExpiresAt();
+```
+
+Your application is now connected. To start fetching data:
+```php
+$teamleader = new Teamleader(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, STATE);
+$teamleader->setAccessToken($accessToken);
+$teamleader->setRefreshToken($refreshToken);
+$teamleader->setTokenExpiresAt($expiresAt);
+
+// the connect function will fetch a new access token if neccessary.
+$teamleader->connect();
+
+// fetch data:
+$teamleader->crm->get();
+
+// you should always store your tokens at the end of a call
+$accessToken = $teamleader->getAccessToken();
+$refreshToken = $teamleader->getRefreshToken();
+$expiresAt = $teamleader->getTokenExpiresAt();
+```
 
 ## Security
 
