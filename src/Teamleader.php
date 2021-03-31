@@ -4,10 +4,12 @@ namespace Justijndepover\Teamleader;
 
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessToken;
+use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessTokenException;
+use Justijndepover\Teamleader\Exceptions\NoAccessToScopeException;
 
 class Teamleader
 {
@@ -184,14 +186,16 @@ class Teamleader
 
     public function get(string $endpoint, array $parameters = [])
     {
-        $request = $this->createRequest('GET', $endpoint, null, $parameters);
-        $response = $this->client->send($request);
+        try {
+            $request = $this->createRequest('GET', $endpoint, null, $parameters);
+            $response = $this->client->send($request);
 
-        return $this->parseResponse($response);
-        // try {
-        // } catch (Exception $e) {
-        //     // $this->parseExceptionForErrorMessages($e);
-        // }
+            return $this->parseResponse($response);
+        } catch (ClientException $e) {
+            $this->parseExceptionForErrorMessages($e);
+        } catch (Exception $e) {
+            throw new Exception();
+        }
     }
 
     private function createRequest($method, $endpoint, $body = null, array $parameters = [], array $headers = [])
@@ -244,6 +248,15 @@ class Teamleader
         }
     }
 
+    private function parseExceptionForErrorMessages(ClientException $e): void
+    {
+        $response = json_decode($e->getResponse()->getBody()->getContents());
+
+        if ($response->errors[0]->status == 403) {
+            throw NoAccessToScopeException::make($response->errors[0]->status, $response->errors[0]->title);
+        }
+    }
+
     private function tokenHasExpired(): bool
     {
         if (empty($this->tokenExpiresAt)) {
@@ -287,7 +300,7 @@ class Teamleader
             $this->refreshToken = $body['refresh_token'];
             $this->tokenExpiresAt = time() + $body['expires_in'];
         } catch (Exception $e) {
-            throw CouldNotAquireAccessToken::make($e->getCode(), $e->getMessage());
+            throw CouldNotAquireAccessTokenException::make($e->getCode(), $e->getMessage());
         }
     }
 }

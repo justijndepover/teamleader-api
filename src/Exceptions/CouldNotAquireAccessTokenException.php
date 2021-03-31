@@ -4,7 +4,7 @@ namespace Justijndepover\Teamleader\Exceptions;
 
 use Exception;
 
-class CouldNotAquireAccessToken extends Exception
+class CouldNotAquireAccessTokenException extends Exception
 {
     public static function make(string $code, string $message): self
     {
