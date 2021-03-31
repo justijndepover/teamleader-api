@@ -126,7 +126,7 @@ class Teamleader
         $this->state = $state;
     }
 
-    public function getAuthorizationCode(): string
+    public function getAuthorizationCode(): ?string
     {
         return $this->authorizationCode;
     }
@@ -136,7 +136,7 @@ class Teamleader
         $this->authorizationCode = $authorizationCode;
     }
 
-    public function getAccessToken(): string
+    public function getAccessToken(): ?string
     {
         return $this->accessToken;
     }
@@ -146,7 +146,7 @@ class Teamleader
         $this->accessToken = $accessToken;
     }
 
-    public function getRefreshToken(): string
+    public function getRefreshToken(): ?string
     {
         return $this->refreshToken;
     }
@@ -156,7 +156,7 @@ class Teamleader
         $this->refreshToken = $refreshToken;
     }
 
-    public function getTokenExpiresAt(): int
+    public function getTokenExpiresAt(): ?int
     {
         return $this->tokenExpiresAt;
     }
@@ -317,8 +317,11 @@ class Teamleader
             $this->accessToken = $body['access_token'];
             $this->refreshToken = $body['refresh_token'];
             $this->tokenExpiresAt = time() + $body['expires_in'];
+        } catch (ClientException $e) {
+            $response = json_decode($e->getResponse()->getBody()->getContents());
+            throw CouldNotAquireAccessTokenException::make($response->errors[0]->status, $response->errors[0]->title);
         } catch (Exception $e) {
-            throw CouldNotAquireAccessTokenException::make($e->getCode(), $e->getMessage());
+            throw ApiException::make($e->getCode(), $e->getMessage());
         }
     }
 }
