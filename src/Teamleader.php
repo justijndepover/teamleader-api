@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 use Justijndepover\Teamleader\Exceptions\ApiException;
 use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessTokenException;
 use Justijndepover\Teamleader\Exceptions\NoAccessToScopeException;
+use Justijndepover\Teamleader\Exceptions\UnknownResourceException;
 
 class Teamleader
 {
@@ -255,6 +256,10 @@ class Teamleader
 
         if ($response->errors[0]->status == 403) {
             throw NoAccessToScopeException::make($response->errors[0]->status, $response->errors[0]->title);
+        }
+
+        if ($response->errors[0]->status == 404) {
+            throw UnknownResourceException::make($response->errors[0]->status, $response->errors[0]->title);
         }
 
         throw ApiException::make($response->errors[0]->status, $response->errors[0]->title);
