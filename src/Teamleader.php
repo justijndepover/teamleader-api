@@ -5,6 +5,8 @@ namespace Justijndepover\Teamleader;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Message;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Justijndepover\Teamleader\Exceptions\CouldNotAquireAccessToken;
 
 class Teamleader
@@ -180,6 +182,68 @@ class Teamleader
         }
     }
 
+    public function get(string $endpoint, array $parameters = [])
+    {
+        $request = $this->createRequest('GET', $endpoint, null, $parameters);
+        $response = $this->client->send($request);
+
+        return $this->parseResponse($response);
+        // try {
+        // } catch (Exception $e) {
+        //     // $this->parseExceptionForErrorMessages($e);
+        // }
+    }
+
+    private function createRequest($method, $endpoint, $body = null, array $parameters = [], array $headers = [])
+    {
+        $endpoint = $this->buildUrl($endpoint);
+
+        $headers = array_merge($headers, [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ]);
+
+        // If access token is not set or token has expired, acquire new token
+        if (empty($this->accessToken) || $this->tokenHasExpired()) {
+            $this->acquireAccessToken();
+        }
+
+        // If we have a token, sign the request
+        if (! $this->shouldAuthorize() && ! empty($this->accessToken)) {
+            $headers['Authorization'] = 'Bearer ' . $this->accessToken;
+        }
+
+        // Create param string
+        if (! empty($parameters)) {
+            $endpoint .= '?' . http_build_query($parameters);
+        }
+
+        // Create the request
+        $request = new Request($method, $endpoint, $headers, $body);
+
+        return $request;
+    }
+
+    private function buildUrl(string $endpoint): string
+    {
+        return 'https://api.teamleader.eu/' . ltrim($endpoint, '/');
+    }
+
+    private function parseResponse(Response $response)
+    {
+        try {
+            if ($response->getStatusCode() === 204) {
+                return [];
+            }
+
+            Message::rewindBody($response);
+            $json = json_decode($response->getBody()->getContents(), true);
+            return $json;
+        } catch (\RuntimeException $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     private function tokenHasExpired(): bool
     {
         if (empty($this->tokenExpiresAt)) {
@@ -206,8 +270,8 @@ class Teamleader
             } else { // else do refresh token request
                 $data = [
                     'form_params' => [
-                        'client_id' => $this->exactClientId,
-                        'client_secret' => $this->exactClientSecret,
+                        'client_id' => $this->clientId,
+                        'client_secret' => $this->clientSecret,
                         'refresh_token' => $this->refreshToken,
                         'grant_type' => 'refresh_token',
                     ],
