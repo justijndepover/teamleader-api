@@ -18,6 +18,10 @@ You can install the package with composer
 composer require justijndepover/teamleader-api
 ```
 
+## Installing the package in Laravel
+
+To use the plugin in Laravel applications, please refer to the [Laravel usage page](laravel-usage.md)
+
 ## Usage
 
 Connecting to Teamleader:
