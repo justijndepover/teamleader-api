@@ -72,7 +72,7 @@ $expiresAt = $teamleader->getTokenExpiresAt();
 
 ## Available methods
 
-Note that your application should have the correct scopes enabled inside the [integration](https://marketplace.teamleader.eu/be/nl/ontwikkel/integraties)
+Note that your application should have the correct scopes enabled inside the [integration](https://marketplace.focus.teamleader.eu/be/nl/ontwikkel/integraties)
 
 This application is in an early development stage. Therefore not all resources are available as props yet. (for example: `$teamleader->users->me`)
 In the meantime it's possible to fetch every resource available through the `get` and `post` methods:
