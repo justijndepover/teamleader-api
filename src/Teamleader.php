@@ -20,7 +20,7 @@ class Teamleader
     /**
      * @var string
      */
-    private $baseUrl = 'https://app.teamleader.eu';
+    private $baseUrl = 'https://focus.teamleader.eu';
 
     /**
      * @var string
@@ -234,7 +234,7 @@ class Teamleader
 
     private function buildUrl(string $endpoint): string
     {
-        return 'https://api.teamleader.eu/' . ltrim($endpoint, '/');
+        return 'https://api.focus.teamleader.eu/' . ltrim($endpoint, '/');
     }
 
     private function parseResponse(Response $response)
