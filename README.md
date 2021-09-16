@@ -85,6 +85,23 @@ $teamleader->post('contacts.add', [
 ]);
 ```
 
+## Rate limiting
+
+After each request, the package stores the rate limit headers. How you handle rate limiting is up to you, but the package does give you some handy functions to manage this:
+```php
+// returns the maximum rate limit your application can hit in 1 minute
+$teamleader->getRateLimitLimit();
+
+// returns the current limit remaining
+$teamleader->getRateLimitRemaining();
+
+// returns the datetime (UTC) when your application can make calls again, after hitting the rate limit.
+$teamleader->getRateLimitReset();
+
+// if the current rate limit is equal to 1, sleep until the reset datetime has passed
+$teamleader->ensureRateLimitingIsNotExceeded();
+```
+
 ## Security
 
 If you find any security related issues, please open an issue or contact me directly at [justijndepover@gmail.com](justijndepover@gmail.com).

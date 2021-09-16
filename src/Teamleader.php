@@ -2,6 +2,7 @@
 
 namespace Justijndepover\Teamleader;
 
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -61,6 +62,21 @@ class Teamleader
      * @var int
      */
     private $tokenExpiresAt;
+
+    /**
+     * @var int
+     */
+    private $rateLimitLimit;
+
+    /**
+     * @var int
+     */
+    private $rateLimitRemaining;
+
+    /**
+     * @var string
+     */
+    private $rateLimitReset;
 
     public function __construct(string $clientId, string $clientSecret, string $redirectUri, string $state)
     {
@@ -166,6 +182,21 @@ class Teamleader
         $this->tokenExpiresAt = $tokenExpiresAt;
     }
 
+    public function getRateLimitLimit(): ?int
+    {
+        return $this->rateLimitLimit;
+    }
+
+    public function getRateLimitRemaining(): ?int
+    {
+        return $this->rateLimitRemaining;
+    }
+
+    public function getRateLimitReset(): ?string
+    {
+        return $this->rateLimitReset;
+    }
+
     public function shouldAuthorize(): bool
     {
         return empty($this->authorizationCode) && empty($this->refreshToken);
@@ -218,6 +249,16 @@ class Teamleader
         }
     }
 
+    public function ensureRateLimitingIsNotExceeded() : void
+    {
+        if ($this->rateLimitRemaining <= 2) {
+            $seconds = Carbon::createFromFormat('Y-m-d\TH:i:sT', $this->rateLimitReset, 'UTC')->diffInSeconds();
+            $seconds++;
+
+            sleep($seconds);
+        }
+    }
+
     private function createRequest($method, $endpoint, $body = null, array $parameters = [], array $headers = [])
     {
         $endpoint = $this->buildUrl($endpoint);
@@ -262,6 +303,11 @@ class Teamleader
 
             Message::rewindBody($response);
             $json = json_decode($response->getBody()->getContents(), true);
+
+            $this->rateLimitLimit = (int) $response->getHeader('X-RateLimit-Limit')[0];
+            $this->rateLimitRemaining = (int) $response->getHeader('X-RateLimit-Remaining')[0];
+            $this->rateLimitReset = $response->getHeader('X-RateLimit-Reset')[0];
+
             return $json;
         } catch (\RuntimeException $e) {
             throw new Exception($e->getMessage());
