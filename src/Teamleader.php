@@ -251,7 +251,7 @@ class Teamleader
 
     public function ensureRateLimitingIsNotExceeded() : void
     {
-        if ($this->rateLimitRemaining <= 2) {
+        if ($this->rateLimitRemaining <= 1) {
             $seconds = Carbon::createFromFormat('Y-m-d\TH:i:sT', $this->rateLimitReset, 'UTC')->diffInSeconds();
             $seconds++;
 

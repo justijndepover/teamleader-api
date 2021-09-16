@@ -87,7 +87,7 @@ $teamleader->post('contacts.add', [
 
 ## Rate limiting
 
-After each request, the package stores the rate limit headers. How you handle rate limiting is up to you, but the package does give you some handy functions to manage this:
+After each request, the rate limiting headers are available.
 ```php
 // returns the maximum rate limit your application can hit in 1 minute
 $teamleader->getRateLimitLimit();
@@ -97,8 +97,12 @@ $teamleader->getRateLimitRemaining();
 
 // returns the datetime (UTC) when your application can make calls again, after hitting the rate limit.
 $teamleader->getRateLimitReset();
+```
 
-// if the current rate limit is equal to 1, sleep until the reset datetime has passed
+How you handle rate limiting is up to you. But the application provides a helper method to ensure you never hit the limit:
+```php
+$teamleader->get('contacts.info', ['id' => $id]);
+// executing this function will sleep until the X-RateLimitReset header has passed, but only if the rate limit is hit.
 $teamleader->ensureRateLimitingIsNotExceeded();
 ```
 
