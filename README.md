@@ -6,6 +6,8 @@
 
 PHP Client for the Teamleader API
 
+![Logo](https://raw.githubusercontent.com/justijndepover/teamleader-api/master/docs/logo.jpg)
+
 ## Caution
 
 This application is still in development and could implement breaking changes. Please use at your own risk.
@@ -20,7 +22,7 @@ composer require justijndepover/teamleader-api
 
 ## Installing the package in Laravel
 
-To use the plugin in Laravel applications, please refer to the [Laravel usage page](laravel-usage.md)
+To use the plugin in Laravel applications, please refer to the [Laravel usage page](docs/laravel-usage.md)
 
 ## Usage
 
