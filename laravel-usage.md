@@ -59,6 +59,14 @@ class TeamleaderServiceProvider extends ServiceProvider implements DeferrablePro
                 config('services.teamleader.state'),
             );
 
+            $teamleader->setTokenUpdateCallback(function ($teamleader) {
+                Storage::disk('local')->put('teamleader.json', json_encode([
+                    'accessToken' => $teamleader->getAccessToken(),
+                    'refreshToken' => $teamleader->getRefreshToken(),
+                    'expiresAt' => $teamleader->getTokenExpiresAt(),
+                ]));
+            });
+
             if (Storage::exists('teamleader.json') && $json = Storage::get('teamleader.json')) {
                 try {
                     $json = json_decode($json);
@@ -70,13 +78,17 @@ class TeamleaderServiceProvider extends ServiceProvider implements DeferrablePro
             }
 
             if (! empty($teamleader->getRefreshToken()) && $teamleader->shouldRefreshToken()) {
-                $teamleader->connect();
+                try {
+                    $teamleader->connect();
+                } catch (\Throwable $th) {
+                    $teamleader->setRefreshToken('');
 
-                Storage::disk('local')->put('teamleader.json', json_encode([
+                    Storage::disk('local')->put('teamleader.json', json_encode([
                     'accessToken' => $teamleader->getAccessToken(),
                     'refreshToken' => $teamleader->getRefreshToken(),
                     'expiresAt' => $teamleader->getTokenExpiresAt(),
                 ]));
+                }
             }
 
             return $teamleader;

@@ -34,6 +34,16 @@ class Teamleader
     private $clientSecret;
 
     /**
+     * @var Client|null
+     */
+    private $client;
+
+    /**
+     * @var callable(Connection)
+     */
+    private $tokenUpdateCallback;
+
+    /**
      * @var string
      */
     private $redirectUri;
@@ -219,6 +229,11 @@ class Teamleader
         }
     }
 
+    public function setTokenUpdateCallback(callable $callback): void
+    {
+        $this->tokenUpdateCallback = $callback;
+    }
+
     public function get(string $endpoint, array $parameters = [])
     {
         try {
@@ -249,7 +264,7 @@ class Teamleader
         }
     }
 
-    public function ensureRateLimitingIsNotExceeded() : void
+    public function ensureRateLimitingIsNotExceeded(): void
     {
         if ($this->rateLimitRemaining <= 1) {
             $seconds = Carbon::createFromFormat('Y-m-d\TH:i:sT', $this->rateLimitReset, 'UTC')->diffInSeconds();
@@ -379,6 +394,10 @@ class Teamleader
             $this->accessToken = $body['access_token'];
             $this->refreshToken = $body['refresh_token'];
             $this->tokenExpiresAt = time() + $body['expires_in'];
+
+            if (is_callable($this->tokenUpdateCallback)) {
+                call_user_func($this->tokenUpdateCallback, $this);
+            }
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
             throw CouldNotAquireAccessTokenException::make($response->errors[0]->status, $response->errors[0]->title);
