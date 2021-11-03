@@ -400,6 +400,7 @@ class Teamleader
             }
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
+
             throw CouldNotAquireAccessTokenException::make($response->errors[0]->status, $response->errors[0]->title);
         } catch (Exception $e) {
             throw ApiException::make($e->getCode(), $e->getMessage());
