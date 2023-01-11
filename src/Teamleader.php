@@ -333,23 +333,26 @@ class Teamleader
     {
         $response = json_decode($e->getResponse()->getBody()->getContents());
 
-        if ($response->errors[0]->status == 401) {
-            throw UnauthorizedException::make($response->errors[0]->status, $response->errors[0]->title);
+        $status = $response->errors[0]->status ?? 400;
+        $title = $response->errors[0]->title ?? 'Something went wrong';
+
+        if ($status == 401) {
+            throw UnauthorizedException::make($status, $title);
         }
 
-        if ($response->errors[0]->status == 403) {
-            throw NoAccessToScopeException::make($response->errors[0]->status, $response->errors[0]->title);
+        if ($status == 403) {
+            throw NoAccessToScopeException::make($status, $title);
         }
 
-        if ($response->errors[0]->status == 404) {
-            throw UnknownResourceException::make($response->errors[0]->status, $response->errors[0]->title);
+        if ($status == 404) {
+            throw UnknownResourceException::make($status, $title);
         }
 
-        if ($response->errors[0]->status == 429) {
-            throw TooManyRequestsException::make($response->errors[0]->status, $response->errors[0]->title);
+        if ($status == 429) {
+            throw TooManyRequestsException::make($status, $title);
         }
 
-        throw ApiException::make($response->errors[0]->status, $response->errors[0]->title);
+        throw ApiException::make($status, $title);
     }
 
     private function tokenHasExpired(): bool
