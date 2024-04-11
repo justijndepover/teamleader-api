@@ -270,7 +270,9 @@ class Teamleader
             $seconds = Carbon::createFromFormat('Y-m-d\TH:i:sT', $this->rateLimitReset, 'UTC')->diffInSeconds();
             $seconds++;
 
-            sleep($seconds);
+            if ($seconds > 0) {
+                sleep($seconds);
+            }
         }
     }
 
